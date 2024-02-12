@@ -1,12 +1,13 @@
 import * as http from 'http';
-import { v4 as uuid } from 'uuid'
+import { v4 as uuid, validate } from 'uuid';
 import { IUserData } from './interfaces/user-data'
 import dotenv from 'dotenv';
 dotenv.config();
 
+let users: IUserData[] = [];
+
 const server = http.createServer((req, res) => {
   const { method, url } = req;
-  let users: IUserData[] = [{id: '9879', username: 'cat', age: 18, hobbies:[ 'play']}];
   let data: Uint8Array[] = [];
   let userData: IUserData;
 
@@ -19,14 +20,32 @@ const server = http.createServer((req, res) => {
     if (method === 'GET' && url === '/users') {
       res.setHeader("Content-Type", "application/json");
       res.writeHead(200);
+      console.log(users, 'GET');
       res.end(JSON.stringify(users))
     }
-    if (method === 'POST' && url === '/users') {
+    else if (method === 'GET' && url?.startsWith('/users/')) {
+      const userID: string = url?.split('/')[2];
+      const user: IUserData | undefined = users.find(user => user.id === userID)
+      res.setHeader("Content-Type", "application/json");
+      res.writeHead(200);
+      res.end(JSON.stringify(user))
+      if(!(user?.id && validate(user.id))) {
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(400);
+        res.end(JSON.stringify({ message: 'User id is invalid' }))
+      } else if (!users.find((u): boolean => u.id === user?.id)) {
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(404);
+        res.end(JSON.stringify({ message: 'User not found' }))
+      }
+    }
+    else if (method === 'POST' && url === '/users') {
       if(userData.username && userData.age && userData.hobbies) {
         res.setHeader("Content-Type", "application/json");
         res.writeHead(201);
         userData.id = uuid();
         users.push(userData)
+        console.log(users);
         res.end(JSON.stringify(userData))
       } else {
         res.setHeader("Content-Type", "application/json");
@@ -34,8 +53,31 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ message: 'Username, age and hobbies are required' }))
       }
     }
-    res.writeHead(404, { "Content-Type": "text/plain" });
-    res.end('Not Found');
+    else if (method === 'PUT' && url?.startsWith('/users/')) {
+      const userID: string = url?.split('/')[2];
+      const user: IUserData | undefined = users.find(user => user.id === userID)
+      res.setHeader("Content-Type", "application/json");
+      if(!(user?.id && validate(user.id))) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ message: 'User id is invalid' }))
+      } else if (!users.find((u): boolean => u.id === user?.id)) {
+        res.writeHead(404);
+        res.end(JSON.stringify({ message: 'User not found' }))
+      } else {
+        res.writeHead(200);
+        users = users.map((user) => {
+          if (user?.id === userID && userData.username) {
+            return {...userData, id: userID}
+          }
+          return user
+        })
+        res.end(JSON.stringify({...userData, id: userID}));
+      }
+    }
+    else {
+      res.writeHead(404, { "Content-Type": "text/plain" });
+      res.end('Not Found');
+    }
   })
 })
 
