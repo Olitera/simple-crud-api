@@ -2,6 +2,7 @@ const path = require("path");
 const nodeExternals = require('webpack-node-externals')
 
 const config = {
+  target: "node",
   entry: "./src/index.ts",
   module: {
     rules: [
@@ -27,4 +28,4 @@ const config = {
   },
 };
 
-// export default config;
+module.exports = config
