@@ -8,6 +8,7 @@
   "scripts": {
     "nodemon": "nodemon src/index.ts",
     "start": "webpack-dev-server --mode development",
+    "dev": "webpack --mode development",
     "build": "webpack --mode production"
   },
   "devDependencies": {
