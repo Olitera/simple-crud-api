@@ -87,7 +87,9 @@ const server = http.createServer((req, res) => {
       } else {
         res.writeHead(204);
         const userIndex: number = users.findIndex(user => user.id === userID);
+        console.log(users, 'kkkkkk')
         users.splice(userIndex,1)
+        console.log(users)
         res.end();
       }
     }

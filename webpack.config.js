@@ -1,9 +1,5 @@
-import * as path from "path";
-import { fileURLToPath } from "url";
-import nodeExternals from "webpack-node-externals"
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const path = require("path");
+const nodeExternals = require('webpack-node-externals')
 
 const config = {
   entry: "./src/index.ts",
@@ -31,4 +27,4 @@ const config = {
   },
 };
 
-export default config;
+// export default config;
