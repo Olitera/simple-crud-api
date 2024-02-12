@@ -1,4 +1,4 @@
-import path from "path";
+import * as path from "path";
 import { fileURLToPath } from "url";
 import nodeExternals from "webpack-node-externals"
 

@@ -74,7 +74,23 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({...userData, id: userID}));
       }
     }
-
+    else if (method === 'DELETE' && url?.startsWith('/users/')) {
+      const userID: string = url?.split('/')[2];
+      const user: IUserData | undefined = users.find(user => user.id === userID)
+      res.setHeader("Content-Type", "application/json");
+      if(!(user?.id && validate(user.id))) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ message: 'User id is invalid' }))
+      } else if (!users.find((u): boolean => u.id === user?.id)) {
+        res.writeHead(404);
+        res.end(JSON.stringify({ message: 'User not found' }))
+      } else {
+        res.writeHead(204);
+        const userIndex: number = users.findIndex(user => user.id === userID);
+        users.splice(userIndex,1)
+        res.end();
+      }
+    }
     else {
       res.writeHead(404, { "Content-Type": "text/plain" });
       res.end('Not Found');
@@ -86,7 +102,3 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-
-
-
